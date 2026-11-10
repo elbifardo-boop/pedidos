@@ -309,9 +309,16 @@ function card(p, nuevo){
 
 /* ---------- control de precios contra el menú ---------- */
 // Si alguien manipula la página para mandar un pedido con precios falsos, se marca en rojo.
-const PRECIOS = {};
-MENU.forEach(c=>c.items.forEach(it=>{ PRECIOS[it.n] = { p: it.p, a: Object.fromEntries((ADI[it.a]||[]).map(x=>[x[0],x[1]])) }; }));
-const ZONA_PRECIO = Object.fromEntries(ZONAS);
+let PRECIOS = {}, ZONA_PRECIO = {};
+function armarPrecios(){
+  PRECIOS = {};
+  MENU.forEach(c=>c.items.forEach(it=>{ PRECIOS[it.n] = { p: it.p, a: Object.fromEntries((ADI[it.a]||[]).map(x=>[x[0],x[1]])) }; }));
+  ZONA_PRECIO = Object.fromEntries(ZONAS);
+}
+armarPrecios();
+// El menú se lee de la planilla al abrir y cada 5 minutos, para que el control de precios esté al día.
+function refrescarMenu(){ cargarMenu({fresco:true}).then(()=>{ armarPrecios(); if (!$("#app").classList.contains("hidden")) render(); }); }
+refrescarMenu(); setInterval(refrescarMenu, 5*60e3);
 function preciosOk(p){
   let sub = 0;
   for (const it of (p.items||[])) {

@@ -157,7 +157,7 @@
 
 <nav><div class="chips" id="chips"></div></nav>
 
-<main class="wrap" id="menu"></main>
+<main class="wrap" id="menu"><p class="hint" style="text-align:center;padding:40px 0">Cargando el menú…</p></main>
 <div class="wrap"><button class="addbtn hidden" id="inlineFinish" style="margin-top:14px"><span>Finalizar pedido</span><span id="inlineTotal"></span></button></div>
 
 <div class="wrap">
@@ -253,6 +253,7 @@
 <script src="menu.js"></script>
 <script src="api.js"></script>
 <script>
+cargarMenu().finally(()=>{
 /* ================== LÓGICA ================== */
 const $ = s => document.querySelector(s);
 const fmt = n => "$" + n.toLocaleString("es-AR");
@@ -282,6 +283,7 @@ const state = { mode:"takeaway", pay:"Efectivo" };
 
 /* render menu */
 const menuEl = $("#menu"), chipsEl = $("#chips");
+menuEl.innerHTML = "";
 MENU.forEach((c,ci)=>{
   if (!c.items.length) return;
   const chip = document.createElement("button");
@@ -291,13 +293,13 @@ MENU.forEach((c,ci)=>{
   chipsEl.appendChild(chip);
 
   const sec = document.createElement("section"); sec.id = "cat"+ci;
-  sec.innerHTML = `<h2>${c.cat}</h2>`;
+  sec.innerHTML = `<h2>${escHtml(c.cat)}</h2>`;
   c.items.forEach(it=>{
     const el = document.createElement("div");
     el.className = "item" + (it.out ? " disabled":"");
     el.innerHTML = `<div class="info">
-        <h3>${it.n}${it.out?'<span class="tag out">Sin stock</span>':''}${it.old&&!it.out?'<span class="tag">Promo</span>':''}</h3>
-        ${it.d?`<p>${it.d}</p>`:""}
+        <h3>${escHtml(it.n)}${it.out?'<span class="tag out">Sin stock</span>':''}${it.old&&!it.out?'<span class="tag">Promo</span>':''}</h3>
+        ${it.d?`<p>${escHtml(it.d)}</p>`:""}
         <div class="price">${fmt(it.p)}${it.old?`<s>${fmt(it.old)}</s>`:""}</div>
       </div>
       <div class="qty" data-id="${it.id}"><button class="minus" aria-label="Quitar">−</button><span>0</span><button class="plus" aria-label="Agregar">+</button></div>`;
@@ -329,7 +331,7 @@ function openProduct(it){
   $("#pPrice").textContent = fmt(it.p);
   const adis = ADI[it.a] || [];
   $("#pAdiBox").classList.toggle("hidden", !adis.length);
-  $("#pAdi").innerHTML = adis.map(([n,pr],i)=>`<div class="adi" data-n="${i}" role="checkbox" aria-checked="false" tabindex="0"><span class="ck">✓</span><span class="nm">${n}</span><span class="pr">+ ${fmt(pr)}</span></div>`).join("");
+  $("#pAdi").innerHTML = adis.map(([n,pr],i)=>`<div class="adi" data-n="${i}" role="checkbox" aria-checked="false" tabindex="0"><span class="ck">✓</span><span class="nm">${escHtml(n)}</span><span class="pr">+ ${fmt(pr)}</span></div>`).join("");
   const groups = it.o || [];
   $("#pOpcBox").classList.toggle("hidden", !groups.length);
   $("#pOpc").innerHTML = groups.map(g=>`<div class="grp" data-g="${g}">${OPC[g].map(t=>`<button class="pill" data-t="${t.replace(/"/g,"&quot;")}">${t}</button>`).join("")}</div>`).join("");
@@ -410,8 +412,8 @@ function refresh(){
   $("#barCount").textContent = n; $("#barTotal").textContent = fmt(t);
   $("#inlineFinish").classList.toggle("hidden", !n); $("#inlineTotal").textContent = fmt(t);
   $("#cartBox").innerHTML = L.length
-    ? L.map(l=>`<div class="line"><span class="n">${l.q} × ${l.it.n}${modsText(l)?`<span class="mods">${modsText(l)}</span>`:""}</span><span class="m">${fmt(l.q*l.u)}</span><button class="rm" data-ix="${l.ix}" aria-label="Quitar">✕</button></div>`).join("")
-      + (env ? `<div class="line"><span class="n">Envío · ${ZONAS[state.zona][0]}</span><span class="m">${fmt(env)}</span></div>` : "")
+    ? L.map(l=>`<div class="line"><span class="n">${l.q} × ${escHtml(l.it.n)}${modsText(l)?`<span class="mods">${escHtml(modsText(l))}</span>`:""}</span><span class="m">${fmt(l.q*l.u)}</span><button class="rm" data-ix="${l.ix}" aria-label="Quitar">✕</button></div>`).join("")
+      + (env ? `<div class="line"><span class="n">Envío · ${escHtml(ZONAS[state.zona][0])}</span><span class="m">${fmt(env)}</span></div>` : "")
       + `<div class="total"><span>Total</span><span>${fmt(t+env)}</span></div>`
     : `<div class="hint">Tu pedido está vacío.</div>`;
   if (!n && document.body.classList.contains("open-sheet")) closeSheet();
@@ -472,7 +474,7 @@ function validate(){
 
 /* formas de pago y zonas */
 $("#segPay").innerHTML = PAGOS.map((p,i)=>`<button data-v="${p}" class="${i?"":"on"}">${p.replace(" Bancaria","").replace("Tarjeta Credito","Tarjeta")}</button>`).join("");
-$("#fZona").innerHTML = ZONAS.map(([z,p],i)=>`<option value="${i}">${z} · ${fmt(p)}</option>`).join("");
+$("#fZona").innerHTML = ZONAS.map(([z,p],i)=>`<option value="${i}">${escHtml(z)} · ${fmt(p)}</option>`).join("");
 $("#fZona").addEventListener("change", ()=>{ state.zona = +$("#fZona").value; refresh(); });
 function payChanged(){
   $("#cashFields").classList.toggle("hidden", state.pay!=="Efectivo");
@@ -559,6 +561,7 @@ if (MOSTRADOR) {
 else $("#sendLabel").textContent = "Finalizar pedido (prueba)";
 payChanged();
 refresh();
+});
 </script>
 </body>
 </html>

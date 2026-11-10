@@ -100,3 +100,36 @@ function comandaTexto(p) {
   if (p.codigo) m += `\n\nCódigo de pedido: ${p.codigo}`;
   return m;
 }
+
+/* ---------- Menú desde la planilla ----------
+   Los precios, el stock y las zonas se editan en la planilla (pestañas Menu, Adicionales, Zonas).
+   La página usa lo guardado en este navegador si tiene menos de 5 minutos; si no, lo pide a la base.
+   Si la base no responde, usa el menú de menu.js como respaldo. */
+function aplicarMenu(d) {
+  if (!d || !Array.isArray(d.menu) || !d.menu.length) return false;
+  MENU.length = 0; d.menu.forEach(c => MENU.push(c));
+  if (d.adi && Object.keys(d.adi).length) { Object.keys(ADI).forEach(k => delete ADI[k]); Object.assign(ADI, d.adi); }
+  if (Array.isArray(d.zonas) && d.zonas.length) { ZONAS.length = 0; d.zonas.forEach(z => ZONAS.push(z)); }
+  return true;
+}
+async function cargarMenu(opts = {}) {
+  if (!CONFIG.API_URL) return false;
+  let cache = null;
+  try { cache = JSON.parse(localStorage.getItem("bifa_menu") || "null"); } catch (e) {}
+  const vigente = cache && cache.d && (Date.now() - cache.t) < 5 * 60e3;
+  const traer = () => fetch(CONFIG.API_URL + "?action=menu", { cache: "no-store" })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok || !Array.isArray(d.menu) || !d.menu.length) throw new Error("menu vacío");
+      try { localStorage.setItem("bifa_menu", JSON.stringify({ t: Date.now(), d })); } catch (e) {}
+      return d;
+    });
+  if (vigente && !opts.fresco) { traer().catch(() => {}); return aplicarMenu(cache.d); }
+  try {
+    const d = await Promise.race([traer(), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 6000))]);
+    return aplicarMenu(d);
+  } catch (e) {
+    return cache && cache.d ? aplicarMenu(cache.d) : false;
+  }
+}
+const escHtml = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
