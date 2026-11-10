@@ -72,6 +72,50 @@
   .chip.deli{background:#e8effc;color:#2f5fb3}
   .chip.take{background:#eaf6ef;color:#23794b}
   .chip.most{background:#fff1f3;color:var(--red-dark)}
+  .chip.py{background:#E4002B;color:#fff}
+  .chip.rp{background:#FF441F;color:#fff}
+  .hd .btn.py{background:#E4002B;color:#fff}
+  .hd .btn.rp{background:#FF441F;color:#fff}
+
+  /* vistas: Pedidos / Menú */
+  .vtabs{display:flex;gap:4px;background:rgba(255,255,255,.16);border-radius:12px;padding:3px}
+  .vtab{border:0;background:transparent;color:#fff;font-weight:700;font-size:14px;padding:7px 14px;border-radius:9px}
+  .vtab.on{background:#fff;color:var(--red-dark)}
+
+  /* editor de menú */
+  #menuView{max-width:1400px;margin:0 auto;padding:12px 16px 120px}
+  .me-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .me-bar input[type=search]{border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;min-width:220px;background:#fff}
+  .me-help{font-size:13px;color:var(--muted);margin:0 2px 12px;max-width:80ch;line-height:1.45}
+  .me-cat{background:#fff;border-radius:16px;padding:12px 14px;margin-bottom:12px}
+  .me-cat h3{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--red);margin:2px 0 8px}
+  .me-head,.me-row{display:grid;grid-template-columns:minmax(200px,2.4fr) repeat(4,minmax(86px,1fr)) 78px 78px 34px;gap:8px;align-items:center}
+  .me-head{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:0 0 6px;border-bottom:1px solid var(--line)}
+  .me-row{padding:7px 0;border-bottom:1px solid var(--line)}
+  .me-row:last-of-type{border-bottom:0}
+  .me-row.oculto{opacity:.5}
+  .me-row.cambiado{background:#fffbea}
+  .me-row input[type=text],.me-row input[type=number],.me-more textarea,.me-more select{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:7px 8px;font-variant-numeric:tabular-nums;background:#fff}
+  .me-row input:focus,.me-more textarea:focus{outline:none;border-color:var(--red)}
+  .me-row input::placeholder{color:#b3b6bc}
+  .sw{display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;justify-content:center}
+  .sw input{appearance:none;width:36px;height:20px;border-radius:99px;background:#d5d8dd;position:relative;cursor:pointer;flex:none}
+  .sw input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s}
+  .sw input:checked{background:var(--s-prep)}
+  .sw input.stock:checked{background:var(--red)}
+  .sw input:checked::after{left:18px}
+  .me-x{border:0;background:#f1f2f4;border-radius:8px;width:30px;height:30px;font-size:14px}
+  .me-more{grid-column:1/-1;display:grid;grid-template-columns:3fr 1fr;gap:8px;padding:4px 0 2px}
+  .me-add{margin-top:8px;border:1.5px dashed var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-weight:600;font-size:13px}
+  .savebar{position:fixed;left:0;right:0;bottom:0;background:#fff;box-shadow:0 -4px 16px rgba(0,0,0,.08);padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:flex-end;z-index:20}
+  .savebar span{margin-right:auto;font-size:14px;color:var(--muted)}
+  .savebar .btn[disabled]{opacity:.45;cursor:default}
+  @media (max-width:900px){
+    .me-head{display:none}
+    .me-row{grid-template-columns:1fr 1fr 1fr;row-gap:6px}
+    .me-row > :first-child{grid-column:1/-1}
+    .me-row [data-lbl]::before{content:attr(data-lbl);display:block;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase}
+  }
   .c-addr{font-size:14px;line-height:1.35}
   .c-items{font-size:14px;line-height:1.4;border-top:1px dashed var(--line);padding-top:8px}
   .c-items .mod{color:var(--muted);font-size:12.5px;padding-left:14px}
@@ -138,11 +182,15 @@
     <div class="stat">Pedidos hoy<b id="stCount">0</b></div>
     <div class="stat">Vendido hoy<b id="stTotal">$0</b></div>
     <div class="stat">Burgers hoy<b id="stBurg">0</b></div>
-    <a class="btn" id="btnMostrador" href="index.html#mostrador" target="_blank" rel="noopener">+ Pedido mostrador</a>
+    <div class="vtabs" role="tablist"><button class="vtab on" data-v="pedidos">Pedidos</button><button class="vtab" data-v="menu">Menú</button></div>
+    <a class="btn" id="btnMostrador" href="index.html#mostrador" target="_blank" rel="noopener">+ Mostrador</a>
+    <a class="btn py" href="index.html#pedidosya" target="_blank" rel="noopener">+ PedidosYa</a>
+    <a class="btn rp" href="index.html#rappi" target="_blank" rel="noopener">+ Rappi</a>
     <button class="btn ghost" id="btnResumen">Resumen del turno</button>
     <div class="live" id="live"><i></i><span>Conectando…</span></div>
   </div></header>
 
+  <div id="pedidosView">
   <div class="bar2">
     <button class="tab on" data-f="activos">Activos</button>
     <button class="tab" data-f="hoy">Todos de hoy</button>
@@ -154,6 +202,23 @@
   </div>
 
   <main id="list"></main>
+  </div>
+
+  <section id="menuView" class="hidden">
+    <div class="me-bar">
+      <button class="tab on" data-m="productos">Productos</button>
+      <button class="tab" data-m="adicionales">Adicionales</button>
+      <button class="tab" data-m="zonas">Zonas de envío</button>
+      <input type="search" id="meBuscar" placeholder="Buscar producto…" aria-label="Buscar producto">
+    </div>
+    <p class="me-help" id="meHelp"></p>
+    <div id="meBody"><p class="me-help">Cargando el menú…</p></div>
+    <div class="savebar">
+      <span id="meEstado">Sin cambios</span>
+      <button class="btn ghost sm" id="meDescartar" disabled>Descartar</button>
+      <button class="btn" id="meGuardar" disabled>Guardar cambios</button>
+    </div>
+  </section>
 </div>
 
 <!-- RESUMEN -->
@@ -175,8 +240,8 @@
 
 <div id="print"></div>
 
-<script src="menu.js?v=4"></script>
-<script src="api.js?v=4"></script>
+<script src="menu.js?v=5"></script>
+<script src="api.js?v=5"></script>
 <script>
 const $ = s => document.querySelector(s);
 const ESTADOS = [["Pendiente","--s-pend"],["Confirmado","--s-conf"],["En Preparación","--s-prep"],["En Entrega","--s-entr"],["Entregado","--s-ok"],["Cancelado","--s-canc"]];
@@ -287,7 +352,7 @@ function card(p, nuevo){
   return `<article class="card${nuevo?" nuevo":""}" style="border-left-color:${color(p.estado)}" data-c="${esc(p.codigo)}">
     <div class="c-top">
       <div><div class="c-num">#${esc(p.numero||"")}<small>${esc(p.codigo)}</small></div>
-        <span class="chip ${deli?"deli":"take"}">${deli?"Delivery":"Take away"}</span>${p.canal==="mostrador"?'<span class="chip most">Mostrador</span>':""}</div>
+        <span class="chip ${deli?"deli":"take"}">${deli?"Delivery":"Take away"}</span>${p.canal==="mostrador"?'<span class="chip most">Mostrador</span>':p.canal==="pedidosya"?'<span class="chip py">PedidosYa</span>':p.canal==="rappi"?'<span class="chip rp">Rappi</span>':""}${(p.canal==="pedidosya"||p.canal==="rappi")&&p.referencia?` <span class="c-phone">${esc(p.referencia)}</span>`:""}</div>
       <div class="c-time">${hora(p.fecha)}<br>${new Date(p.fecha).toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit"})}</div>
     </div>
     <div><div class="c-name">${esc(p.nombre||"-")}</div>${p.whatsapp?`<div class="c-phone">${esc(p.whatsapp)}</div>`:""}</div>
@@ -312,7 +377,7 @@ function card(p, nuevo){
 let PRECIOS = {}, ZONA_PRECIO = {};
 function armarPrecios(){
   PRECIOS = {};
-  MENU.forEach(c=>c.items.forEach(it=>{ PRECIOS[it.n] = { p: it.p, a: Object.fromEntries((ADI[it.a]||[]).map(x=>[x[0],x[1]])) }; }));
+  MENU.forEach(c=>c.items.forEach(it=>{ PRECIOS[it.n] = { it, a: Object.fromEntries((ADI[it.a]||[]).map(x=>[x[0],x])) }; }));
   ZONA_PRECIO = Object.fromEntries(ZONAS);
 }
 armarPrecios();
@@ -323,8 +388,8 @@ function preciosOk(p){
   let sub = 0;
   for (const it of (p.items||[])) {
     const m = PRECIOS[it.n]; if (!m) return false;
-    let u = m.p;
-    for (const a of (it.adds||[])) { if (!(a[0] in m.a)) return false; u += m.a[a[0]]; }
+    let u = precioCanal(m.it, p.canal);
+    for (const a of (it.adds||[])) { if (!(a[0] in m.a)) return false; u += precioAdiCanal(m.a[a[0]], p.canal); }
     if (Number(it.u) !== u) return false;
     sub += u * Number(it.q);
   }
@@ -361,8 +426,8 @@ $("#list").addEventListener("click", e=>{
   if (b.dataset.act==="cocina") imprimir(p, "cocina");
   if (b.dataset.act==="ticket") imprimir(p, "ticket");
 });
-document.querySelectorAll(".tab").forEach(t=>t.onclick = ()=>{
-  filtro = t.dataset.f; document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on", x===t)); render();
+document.querySelectorAll(".tab[data-f]").forEach(t=>t.onclick = ()=>{
+  filtro = t.dataset.f; document.querySelectorAll(".tab[data-f]").forEach(x=>x.classList.toggle("on", x===t)); render();
 });
 try { $("#autoPrint").checked = localStorage.getItem("bifa_autoprint")==="1"; } catch(e){}
 $("#autoPrint").onchange = ()=>{ try { localStorage.setItem("bifa_autoprint", $("#autoPrint").checked?"1":"0"); } catch(e){} };
@@ -416,10 +481,11 @@ function resumen(){
   const sum = f => L.reduce((s,p)=>s+Number(f(p)||0),0);
   const porPago = {}; L.forEach(p=>{ porPago[p.pago] = (porPago[p.pago]||0) + Number(p.total||0); });
   const delis = L.filter(p=>p.entrega==="delivery");
-  const web = L.filter(p=>p.canal!=="mostrador").length;
+  const porCanal = {}; L.forEach(p=>{ const k = (CANALES[p.canal]||CANALES.web).nombre; porCanal[k] = porCanal[k]||{n:0,t:0}; porCanal[k].n++; porCanal[k].t += Number(p.total||0); });
   const total = sum(p=>p.total), env = sum(p=>p.envio), burg = sum(p=>p.hamburguesas);
   $("#rBody").innerHTML = `
-    <div class="row"><span>Pedidos (web / mostrador)</span><b>${L.length} (${web} / ${L.length-web})</b></div>
+    <div class="row"><span>Pedidos</span><b>${L.length}</b></div>
+    ${Object.entries(porCanal).map(([k,v])=>`<div class="row"><span>· ${esc(k)}</span><b>${v.n} · ${$fmt(v.t)}</b></div>`).join("")}
     <div class="row"><span>Delivery / Take away</span><b>${delis.length} / ${L.length-delis.length}</b></div>
     <div class="row"><span>Hamburguesas</span><b>${burg}</b></div>
     ${Object.entries(porPago).map(([k,v])=>`<div class="row"><span>${esc(k)}</span><b>${$fmt(v)}</b></div>`).join("")}
@@ -430,7 +496,8 @@ function resumen(){
   $("#rTxt").textContent =
 `FECHA: ${d.getDate()}.${d.getMonth()+1}
 TURNO: ${turno==="mediodia"?"mediodía":turno==="noche"?"noche":"día completo"}
-PEDIDOS WEB/MOSTRADOR (sistema propio): ${L.length}
+PEDIDOS (sistema propio): ${L.length}
+${Object.entries(porCanal).map(([k,v])=>`  ${k}: ${v.n} pedidos · ${v.t.toLocaleString("es-AR")}`).join("\n")}
 Burger totales: ${burg}
 Ingreso total: ${total.toLocaleString("es-AR")}
 ${Object.entries(porPago).map(([k,v])=>`${k}: ${v.toLocaleString("es-AR")}`).join("\n")}
@@ -448,6 +515,182 @@ $("#rCopy").onclick = async ()=>{
   try { await navigator.clipboard.writeText($("#rTxt").textContent); $("#rCopy").textContent="¡Copiado!"; }
   catch(e){ $("#rCopy").textContent="Seleccioná el texto y copialo"; }
   setTimeout(()=>$("#rCopy").textContent="Copiar resumen",2000);
+};
+
+
+/* ================== VISTAS: Pedidos / Menú ================== */
+let vista = "pedidos";
+document.querySelectorAll(".vtab").forEach(b=>b.onclick = ()=>{
+  if (vista === "menu" && b.dataset.v !== "menu" && meSucio && !confirm_("Tenés cambios del menú sin guardar. ¿Salir igual?")) return;
+  vista = b.dataset.v;
+  document.querySelectorAll(".vtab").forEach(x=>x.classList.toggle("on", x===b));
+  $("#pedidosView").classList.toggle("hidden", vista!=="pedidos");
+  $("#menuView").classList.toggle("hidden", vista!=="menu");
+  if (vista==="menu" && !ME) cargarEditor();
+});
+// confirm() está bloqueado en algunos navegadores embebidos: si falla, se deja salir.
+function confirm_(t){ try { return window.confirm(t); } catch(e) { return true; } }
+window.addEventListener("beforeunload", e=>{ if (meSucio) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ================== EDITOR DE MENÚ ================== */
+// ME = copia editable del menú completo (incluye productos ocultos). ORIG = lo último guardado.
+let ME = null, ORIG = null, meSucio = false, meSub = "productos";
+const LISTAS_ADI = { FULL: "Hamburguesas con papas", VEG: "Veggies", HUERF: "Huérfanas (sin papas)", PAPAS: "Papas y entradas" };
+const DIAS_TXT = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+const num = v => { const n = Math.round(Number(String(v).replace(/[^\d]/g,""))); return n > 0 ? n : 0; };
+
+async function cargarEditor(){
+  $("#meBody").innerHTML = `<p class="me-help">Cargando el menú…</p>`;
+  let d;
+  try {
+    if (Api.usaLocal()) d = { ok:true, menu: JSON.parse(JSON.stringify(MENU)).map(c=>({...c, items:c.items.map(i=>({...i, show:true}))})), adi: JSON.parse(JSON.stringify(ADI)), zonas: JSON.parse(JSON.stringify(ZONAS)) };
+    else d = await Api.menuCompleto(PIN);
+    if (!d.ok) throw new Error(d.error);
+  } catch(e) { $("#meBody").innerHTML = `<p class="me-help">No se pudo cargar el menú: ${esc(e.message||"sin conexión")}. Probá de nuevo en un momento.</p>`; return; }
+  // normalizar adicionales a [nombre, local, pedidosya, rappi]
+  Object.values(d.adi||{}).forEach(l=>l.forEach(a=>{ while (a.length < 4) a.push(0); }));
+  ME = d; ORIG = JSON.stringify({menu:d.menu, adi:d.adi, zonas:d.zonas});
+  setSucio(false); renderEditor();
+}
+function setSucio(v){
+  meSucio = v;
+  $("#meGuardar").disabled = !v; $("#meDescartar").disabled = !v;
+  $("#meEstado").textContent = v ? "Hay cambios sin guardar" : "Sin cambios";
+  $("#meEstado").style.color = v ? "var(--red-dark)" : "";
+}
+document.querySelectorAll(".tab[data-m]").forEach(t=>t.onclick = ()=>{
+  meSub = t.dataset.m; document.querySelectorAll(".tab[data-m]").forEach(x=>x.classList.toggle("on", x===t));
+  $("#meBuscar").classList.toggle("hidden", meSub!=="productos"); renderEditor();
+});
+$("#meBuscar").addEventListener("input", ()=>{
+  const q = $("#meBuscar").value.trim().toLowerCase();
+  document.querySelectorAll("#meBody .me-row[data-busca]").forEach(r=>r.style.display = !q || r.dataset.busca.includes(q) ? "" : "none");
+});
+const inp = (path, val, opts={}) => `<input ${opts.type==="text"?'type="text"':'type="number" min="0" step="100" inputmode="numeric"'} data-p="${path}" value="${esc(val||"")}" ${opts.ph!=null?`placeholder="${esc(opts.ph)}"`:""} aria-label="${esc(opts.lbl||"")}">`;
+const cel = (lbl, html) => `<div data-lbl="${esc(lbl)}">${html}</div>`;
+
+function renderEditor(){
+  if (!ME) return;
+  const help = {
+    productos: "Cambiá precios, stock y visibilidad. <b>PedidosYa</b> y <b>Rappi</b> vacíos = mismo precio que en el local. <b>Sin stock</b> lo muestra pero no se puede pedir; <b>Visible</b> apagado lo oculta. Tocá ⋯ para descripción y combo del día. Los cambios se aplican al tocar <b>Guardar cambios</b>.",
+    adicionales: "Precio de cada adicional según el tipo de producto. PedidosYa y Rappi vacíos = mismo precio que en el local.",
+    zonas: "Costo del envío por distancia (solo pedidos web con delivery).",
+  }[meSub];
+  $("#meHelp").innerHTML = help;
+  let h = "";
+  if (meSub === "productos") {
+    ME.menu.forEach((c,ci)=>{
+      h += `<div class="me-cat"><h3>${esc(c.cat)}</h3>
+        <div class="me-head"><span>Producto</span><span>Local</span><span>Tachado</span><span>PedidosYa</span><span>Rappi</span><span style="text-align:center">Sin stock</span><span style="text-align:center">Visible</span><span></span></div>`;
+      c.items.forEach((it,ii)=>{
+        const P = `m.${ci}.${ii}`;
+        h += `<div class="me-row${it.show===false?" oculto":""}" data-busca="${esc(it.n.toLowerCase())}" data-row="${P}">
+          ${cel("Producto", inp(P+".n", it.n, {type:"text", lbl:"Nombre"}))}
+          ${cel("Local", inp(P+".p", it.p, {lbl:"Precio local"}))}
+          ${cel("Tachado", inp(P+".old", it.old, {ph:"—", lbl:"Precio tachado"}))}
+          ${cel("PedidosYa", inp(P+".py", it.py, {ph:it.p, lbl:"Precio PedidosYa"}))}
+          ${cel("Rappi", inp(P+".rp", it.rp, {ph:it.p, lbl:"Precio Rappi"}))}
+          <label class="sw" data-lbl="Sin stock"><input type="checkbox" class="stock" data-p="${P}.out" ${it.out?"checked":""} aria-label="Sin stock"></label>
+          <label class="sw" data-lbl="Visible"><input type="checkbox" data-p="${P}.show" ${it.show!==false?"checked":""} aria-label="Visible"></label>
+          <button class="me-x" data-more="${P}" title="Descripción y combo" aria-label="Más opciones">⋯</button>
+          <div class="me-more hidden" id="more-${ci}-${ii}">
+            <textarea rows="2" data-p="${P}.d" placeholder="Descripción" aria-label="Descripción">${esc(it.d||"")}</textarea>
+            <select data-p="${P}.combo" aria-label="Combo del día"><option value="">Todos los días</option>${DIAS_TXT.map((d,i)=>`<option value="${i}" ${it.combo===i?"selected":""}>Solo ${d}</option>`).join("")}</select>
+          </div>
+        </div>`;
+      });
+      h += `<button class="me-add" data-addprod="${ci}">+ Agregar producto en ${esc(c.cat)}</button></div>`;
+    });
+  } else if (meSub === "adicionales") {
+    Object.keys(ME.adi).forEach(l=>{
+      h += `<div class="me-cat"><h3>${esc(LISTAS_ADI[l]||l)}</h3>
+        <div class="me-head" style="grid-template-columns:minmax(200px,2.4fr) repeat(3,minmax(86px,1fr)) 34px"><span>Adicional</span><span>Local</span><span>PedidosYa</span><span>Rappi</span><span></span></div>`;
+      ME.adi[l].forEach((a,ai)=>{
+        const P = `a.${l}.${ai}`;
+        h += `<div class="me-row" style="grid-template-columns:minmax(200px,2.4fr) repeat(3,minmax(86px,1fr)) 34px">
+          ${cel("Adicional", inp(P+".0", a[0], {type:"text", lbl:"Nombre"}))}
+          ${cel("Local", inp(P+".1", a[1], {lbl:"Precio local"}))}
+          ${cel("PedidosYa", inp(P+".2", a[2]||"", {ph:a[1], lbl:"Precio PedidosYa"}))}
+          ${cel("Rappi", inp(P+".3", a[3]||"", {ph:a[1], lbl:"Precio Rappi"}))}
+          <button class="me-x" data-deladi="${l}.${ai}" title="Quitar" aria-label="Quitar adicional">✕</button>
+        </div>`;
+      });
+      h += `<button class="me-add" data-addadi="${esc(l)}">+ Agregar adicional</button></div>`;
+    });
+  } else {
+    h += `<div class="me-cat" style="max-width:560px"><div class="me-head" style="grid-template-columns:2fr 1fr 34px"><span>Zona</span><span>Precio</span><span></span></div>`;
+    ME.zonas.forEach((z,zi)=>{
+      h += `<div class="me-row" style="grid-template-columns:2fr 1fr 34px">
+        ${cel("Zona", inp(`z.${zi}.0`, z[0], {type:"text", lbl:"Zona"}))}
+        ${cel("Precio", inp(`z.${zi}.1`, z[1], {lbl:"Precio"}))}
+        <button class="me-x" data-delzona="${zi}" title="Quitar" aria-label="Quitar zona">✕</button></div>`;
+    });
+    h += `<button class="me-add" data-addzona="1">+ Agregar zona</button></div>`;
+  }
+  $("#meBody").innerHTML = h;
+  $("#meBuscar").dispatchEvent(new Event("input"));
+}
+
+// editar un valor del modelo según su ruta (m.cat.item.campo | a.lista.i.k | z.i.k)
+function setPath(path, el){
+  const [t, x, y, k] = path.split(".");
+  if (t === "m") {
+    const it = ME.menu[+x].items[+y];
+    if (k === "n" || k === "d") it[k] = el.value;
+    else if (k === "out") it.out = el.checked;
+    else if (k === "show") { it.show = el.checked; el.closest(".me-row").classList.toggle("oculto", !el.checked); }
+    else if (k === "combo") { if (el.value === "") delete it.combo; else it.combo = +el.value; }
+    else { const n = num(el.value); if (n) it[k] = n; else delete it[k]; if (k==="p") el.closest(".me-row").querySelectorAll('[data-p$=".py"],[data-p$=".rp"]').forEach(i=>i.placeholder = n||""); }
+  } else if (t === "a") {
+    const a = ME.adi[x][+y]; a[+k] = +k === 0 ? el.value : num(el.value);
+  } else if (t === "z") {
+    const z = ME.zonas[+x]; z[+k] = +k === 0 ? el.value : num(el.value);
+  }
+  const row = el.closest(".me-row"); if (row) row.classList.add("cambiado");
+  setSucio(JSON.stringify({menu:ME.menu, adi:ME.adi, zonas:ME.zonas}) !== ORIG);
+}
+$("#meBody").addEventListener("input", e=>{ if (e.target.dataset.p) setPath(e.target.dataset.p, e.target); });
+$("#meBody").addEventListener("change", e=>{ if (e.target.dataset.p && (e.target.type==="checkbox" || e.target.tagName==="SELECT")) setPath(e.target.dataset.p, e.target); });
+$("#meBody").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.more) { const [,ci,ii] = b.dataset.more.split("."); $(`#more-${ci}-${ii}`).classList.toggle("hidden"); return; }
+  if (b.dataset.addprod != null) {
+    const c = ME.menu[+b.dataset.addprod], base = c.items[0] || {};
+    // el producto nuevo hereda los adicionales y opcionales del primero de la categoría
+    c.items.push({ n: "NUEVO PRODUCTO", p: base.p || 0, a: base.a, o: base.o ? base.o.slice() : undefined, show: true });
+  }
+  if (b.dataset.addadi) ME.adi[b.dataset.addadi].push(["NUEVO ADICIONAL", 0, 0, 0]);
+  if (b.dataset.deladi) { const [l,i] = b.dataset.deladi.split("."); ME.adi[l].splice(+i,1); }
+  if (b.dataset.addzona) ME.zonas.push(["NUEVA ZONA", 0]);
+  if (b.dataset.delzona != null) ME.zonas.splice(+b.dataset.delzona,1);
+  setSucio(JSON.stringify({menu:ME.menu, adi:ME.adi, zonas:ME.zonas}) !== ORIG);
+  renderEditor();
+  if (b.dataset.addprod != null) { const rows = $("#meBody").querySelectorAll(`[data-row^="m.${b.dataset.addprod}."]`); const last = rows[rows.length-1]; if (last) { last.scrollIntoView({block:"center"}); last.querySelector("input").select(); } }
+});
+$("#meDescartar").onclick = ()=>{ const o = JSON.parse(ORIG); ME.menu = o.menu; ME.adi = o.adi; ME.zonas = o.zonas; setSucio(false); renderEditor(); };
+$("#meGuardar").onclick = async ()=>{
+  // validar antes de mandar
+  const malos = [];
+  ME.menu.forEach(c=>c.items.forEach(it=>{ if (!String(it.n||"").trim() || !(it.p > 0)) malos.push(it.n || "(sin nombre)"); }));
+  if (malos.length) { $("#meEstado").textContent = "Falta nombre o precio en: " + malos.slice(0,3).join(", "); $("#meEstado").style.color = "var(--red-dark)"; return; }
+  $("#meGuardar").disabled = true; $("#meEstado").textContent = "Guardando…";
+  try {
+    if (Api.usaLocal()) {
+      aplicarMenu({ menu: ME.menu.map(c=>({ cat:c.cat, items:c.items.filter(i=>i.show!==false) })), adi: ME.adi, zonas: ME.zonas });
+    } else {
+      const r = await Api.guardarMenu(PIN, { menu: ME.menu, adi: ME.adi, zonas: ME.zonas });
+      if (!r.ok) throw new Error(r.error);
+    }
+    ORIG = JSON.stringify({menu:ME.menu, adi:ME.adi, zonas:ME.zonas});
+    setSucio(false); renderEditor();
+    $("#meEstado").textContent = "✓ Guardado. La página de pedidos ya muestra los cambios (puede tardar hasta 1 minuto).";
+    $("#meEstado").style.color = "var(--s-prep)";
+    refrescarMenu();
+  } catch(e) {
+    $("#meGuardar").disabled = false;
+    $("#meEstado").textContent = "No se pudo guardar: " + (e.message || "sin conexión") + ". Probá de nuevo.";
+    $("#meEstado").style.color = "var(--red-dark)";
+  }
 };
 
 if (Api.usaLocal()) { $("#loginErr").textContent = "Modo prueba: los pedidos se guardan solo en este navegador. Entrá con cualquier PIN."; }

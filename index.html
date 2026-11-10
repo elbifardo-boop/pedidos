@@ -250,11 +250,15 @@
   </div>
 </div>
 
-<script src="menu.js?v=4"></script>
-<script src="api.js?v=4"></script>
+<script src="menu.js?v=5"></script>
+<script src="api.js?v=5"></script>
 <script>
 (typeof cargarMenu==="function" ? cargarMenu() : Promise.resolve()).finally(()=>{
 const escHtml = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+/* Canal: web (clientes), #mostrador, #pedidosya o #rappi (carga interna desde el administrador) */
+const CANAL = ["mostrador","pedidosya","rappi"].includes(location.hash.slice(1)) ? location.hash.slice(1) : "web";
+const PLAT = (typeof CANALES !== "undefined" && CANALES[CANAL] && CANALES[CANAL].campo) ? CANALES[CANAL] : null;
+if (PLAT) usarPreciosDe(CANAL);
 /* ================== LÓGICA ================== */
 const $ = s => document.querySelector(s);
 const fmt = n => "$" + n.toLocaleString("es-AR");
@@ -268,8 +272,8 @@ const byId = Object.fromEntries(items.map(i=>[i.id,i]));
 
 /* carrito: lista de líneas {id, adds:[nombres], opts:[textos], q} */
 let cart = [];
-try { cart = (JSON.parse(localStorage.getItem("bifa_cart2")||"[]")||[]).filter(l=>byId[l.id] && !byId[l.id].out); } catch(e){ cart=[]; }
-const save = () => { try{ localStorage.setItem("bifa_cart2", JSON.stringify(cart)); }catch(e){} };
+try { cart = (JSON.parse(localStorage.getItem("bifa_cart2_"+CANAL)||"[]")||[]).filter(l=>byId[l.id] && !byId[l.id].out); } catch(e){ cart=[]; }
+const save = () => { try{ localStorage.setItem("bifa_cart2_"+CANAL, JSON.stringify(cart)); }catch(e){} };
 const adiPrice = (it, name) => { const r = (ADI[it.a]||[]).find(x=>x[0]===name); return r ? r[1] : 0; };
 const unitPrice = l => { const it = byId[l.id]; return it.p + l.adds.reduce((s,a)=>s+adiPrice(it,a),0); };
 const keyOf = l => l.id+"|"+l.adds.join(",")+"|"+l.opts.join(",");
@@ -398,7 +402,7 @@ function lines(){
 function totals(){ const L=lines(); return { L, n:L.reduce((a,b)=>a+b.q,0), t:L.reduce((a,b)=>a+b.q*b.u,0) }; }
 const modsText = l => [...l.adds.map(a=>"+ "+a), ...l.opts].join(" · ");
 
-const MOSTRADOR = location.hash === "#mostrador";
+const MOSTRADOR = CANAL !== "web";   // modo interno: no abre WhatsApp
 state.zona = 0;
 state.codigo = nuevoCodigo();
 const envioActual = () => state.mode==="delivery" ? ZONAS[state.zona][1] : 0;
@@ -432,13 +436,13 @@ function buildPedido(){
   const env = envioActual();
   return {
     codigo: state.codigo,
-    canal: MOSTRADOR ? "mostrador" : "web",
-    nombre: v("#fName") || (MOSTRADOR ? "Mostrador" : ""),
-    whatsapp: v("#fPhone").replace(/\D/g,""),
+    canal: CANAL,
+    nombre: v("#fName") || (PLAT ? PLAT.nombre : MOSTRADOR ? "Mostrador" : ""),
+    whatsapp: PLAT ? "" : v("#fPhone").replace(/\D/g,""),
     entrega: state.mode,
     direccion: state.mode==="delivery" ? v("#fAddr") : "",
     entre: state.mode==="delivery" ? v("#fBetween") : "",
-    referencia: state.mode==="delivery" ? v("#fRef") : "",
+    referencia: PLAT ? (v("#fPhone") ? PLAT.nombre + " N° " + v("#fPhone") : "") : state.mode==="delivery" ? v("#fRef") : "",
     zona: state.mode==="delivery" ? ZONAS[state.zona][0] : "",
     envio: env,
     pago: state.pay,
@@ -549,18 +553,27 @@ $("#copy").onclick = async ()=>{
 };
 
 /* banner superior */
+if (PLAT) {
+  document.body.classList.add("mostrador");
+  state.pay = PLAT.pago; state.mode = "takeaway";
+  $("#testBanner").innerHTML = `<b>${PLAT.nombre.toUpperCase()}</b> · Carga de pedidos de ${PLAT.nombre} con sus precios. No se envía WhatsApp.`;
+  $("#testBanner").style.background = CANAL==="pedidosya" ? "#E4002B" : "#FF441F";
+  ["#segMode","#deliveryFields","#segPay","#cashFields","#aliasHint"].forEach(id=>$(id).classList.add("hidden"));
+  document.querySelectorAll("#segMode, #segPay").forEach(el=>{ const l = el.previousElementSibling; if (l && l.tagName==="LABEL") l.classList.add("hidden"); });
+}
 if (MOSTRADOR) {
   document.body.classList.add("mostrador");
-  $("#testBanner").innerHTML = "<b>MOSTRADOR</b> · Carga de pedidos del local. No se envía WhatsApp.";
+  if (!PLAT) $("#testBanner").innerHTML = "<b>MOSTRADOR</b> · Carga de pedidos del local. No se envía WhatsApp.";
   $("#sendLabel").textContent = "Guardar pedido";
   $("#send").querySelector("svg").remove();
   $("#send").style.background = "var(--red)";
   $("#send").removeAttribute("target");
   $("label[for=fName]").textContent = "Nombre (opcional)";
-  $("label[for=fPhone]").textContent = "WhatsApp (opcional)";
+  $("label[for=fPhone]").textContent = PLAT ? `N° de pedido de ${PLAT.nombre} (opcional)` : "WhatsApp (opcional)";
+  if (PLAT) { $("#fPhone").placeholder = "Ej: 1234567"; $("#fPhone").type = "text"; $("#fPhone").inputMode = "numeric"; }
 } else if (!CONFIG.TEST_MODE) $("#testBanner").remove();
 else $("#sendLabel").textContent = "Finalizar pedido (prueba)";
-payChanged();
+if (!PLAT) payChanged();
 refresh();
 });
 </script>

@@ -39,6 +39,9 @@ const Api = {
     return this.post({ action: "verificar", pin });
   },
 
+  async menuCompleto(pin) { return this.post({ action: "menuCompleto", pin }); },
+  async guardarMenu(pin, data) { return this.post({ action: "guardarMenu", pin, data }); },
+
   async listar(pin, horas = 36) {
     if (this.usaLocal()) {
       let arr = [];
@@ -103,7 +106,7 @@ function comandaTexto(p) {
 
 /* ---------- Menú desde la planilla ----------
    Los precios, el stock y las zonas se editan en la planilla (pestañas Menu, Adicionales, Zonas).
-   La página usa lo guardado en este navegador si tiene menos de 5 minutos; si no, lo pide a la base.
+   La página usa lo guardado en este navegador si tiene menos de 1 minuto; si no, lo pide a la base.
    Si la base no responde, usa el menú de menu.js como respaldo. */
 function aplicarMenu(d) {
   if (!d || !Array.isArray(d.menu) || !d.menu.length) return false;
@@ -116,7 +119,7 @@ async function cargarMenu(opts = {}) {
   if (!CONFIG.API_URL) return false;
   let cache = null;
   try { cache = JSON.parse(localStorage.getItem("bifa_menu") || "null"); } catch (e) {}
-  const vigente = cache && cache.d && (Date.now() - cache.t) < 5 * 60e3;
+  const vigente = cache && cache.d && (Date.now() - cache.t) < 60e3;
   const traer = () => fetch(CONFIG.API_URL + "?action=menu", { cache: "no-store" })
     .then(r => r.json())
     .then(d => {
@@ -133,3 +136,20 @@ async function cargarMenu(opts = {}) {
   }
 }
 const escHtml = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/* ---------- Precios por canal ----------
+   Cada producto y adicional tiene precio del local (p) y, opcionalmente, de PedidosYa (py) y Rappi (rp).
+   Vacío = mismo precio que en el local. */
+const CANALES = {
+  web: { nombre: "Web" }, mostrador: { nombre: "Mostrador" },
+  pedidosya: { nombre: "PedidosYa", campo: "py", adi: 2, pago: "PedidosYa" },
+  rappi: { nombre: "Rappi", campo: "rp", adi: 3, pago: "Rappi" },
+};
+function precioCanal(it, canal) { const c = CANALES[canal]; return (c && c.campo && it[c.campo]) || it.p; }
+function precioAdiCanal(a, canal) { const c = CANALES[canal]; return (c && c.adi && a[c.adi]) || a[1]; }
+/* Deja MENU y ADI con los precios del canal (para el armador de pedidos de PedidosYa / Rappi). */
+function usarPreciosDe(canal) {
+  if (!CANALES[canal] || !CANALES[canal].campo) return;
+  MENU.forEach(c => c.items.forEach(it => { it.p = precioCanal(it, canal); delete it.old; }));
+  Object.values(ADI).forEach(l => l.forEach(a => { a[1] = precioAdiCanal(a, canal); }));
+}
