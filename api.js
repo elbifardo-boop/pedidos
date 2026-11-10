@@ -25,15 +25,18 @@ const Api = {
     });
   },
 
-  async get(params) {
-    const url = CONFIG.API_URL + "?" + new URLSearchParams(params).toString();
-    const r = await fetch(url, { method: "GET" });
+  /* Pedidos con PIN: van por POST para que el PIN no quede en la dirección web. */
+  async post(data) {
+    const r = await fetch(CONFIG.API_URL, {
+      method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(data), redirect: "follow",
+    });
     return r.json();
   },
 
   async verificar(pin) {
     if (this.usaLocal()) return { ok: true };
-    return this.get({ action: "verificar", pin });
+    return this.post({ action: "verificar", pin });
   },
 
   async listar(pin, horas = 36) {
@@ -43,7 +46,7 @@ const Api = {
       const lim = Date.now() - horas * 3600e3;
       return { ok: true, pedidos: arr.filter(p => new Date(p.fecha).getTime() >= lim).reverse() };
     }
-    return this.get({ action: "listar", pin, horas });
+    return this.post({ action: "listar", pin, horas });
   },
 
   async actualizar(pin, codigo, campo, valor) {
@@ -56,7 +59,7 @@ const Api = {
       } catch (e) {}
       return { ok: true };
     }
-    return this.get({ action: "actualizar", pin, codigo, campo, valor: String(valor) });
+    return this.post({ action: "actualizar", pin, codigo, campo, valor });
   },
 };
 

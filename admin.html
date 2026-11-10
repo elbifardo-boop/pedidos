@@ -124,7 +124,7 @@
     <img id="logo1" alt="El Bifardo" src="data:image/webp;base64,UklGRmYFAABXRUJQVlA4WAoAAAAgAAAAfwAAfwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggeAMAAHAUAJ0BKoAAgAA+bTSXR6QjJSGplDjgoA2JTat8LrmfwQHXcuanhrE9hgP1g9bznZusA9ADyz/aGK9J3sMD+EIW0xsxGD2f4xvGjj1mRBLPRBeOa4XX4opmZxuv+ckchIwBoKwog5O1+0wwRPjdowQ/TqwdKeYusQLOEj5Qf1YhVqSmAioE1eewMTk8azaJmsFD4NUX+WnrK67Zzq5Fv0laJU55IVA6P1I5sAAA/up42W/r1X1cG//1aH/+Wh//kGeOo2n5TrlP+ggKb7mON4XzfTaQN8bBJ5yCgE5vD9c36MvirgauBljsTKrCbqNaoN4Ga/0lmr8uXiOFumYK4WPIDYKf5LPo/OX1+KqN3rzus9abZbBQZDG2eMVyVxmlpgtQAGfYlOdAxUVlQzhuJsugtzEeA+sPOTwPp2hIhiyZxXihNcdMf/0BujKU3jpktLlrP4CZPQrAWn2PjU0rLMFRfz29Ga7/O8t5IZQ7s9b4Xe0OMV+sb7L5OKJiW6lMzOPQ71/DHE3ObgUnVtNoFagypET191bEmBrzuHHON2JJwP9TIz+12e4I5QpDHX8oPaORRXvhEAhq3QagoMGzF2FzV0+cuabj0vc87zbfnDGi2fYjPbXeIvm0SGbBvl10WJ9dssWzmyMuI06RK7G2qjPzJrdykzCmR8qonmwsnm+I1x6kmUqXfN10JFa0DLfGOflxUGpjaqpruTQGUqeZAOD2ufFyMtJ+gQnRMrA7ayQwNFl7+1VB/PP6JNjG8qA7aBiyl45aFA6pOCgwe+EsPbj/6BdHB1TDSiKneJEmrUs7/eSQkfaddiArTGRBBlifGUaFeb6AMFbtZew7D9N6QMkRiN+Yv/fpBBqMlRp/j237iY9Ab/4Os1+JrO8BA14sjpV+LYKZTvMUdzYau0kXpiZmxFs9WuJTpK7/QIx8AAc8rgMMkXVoWxCeT9c5+wXK2ljyyQ2VD9ijDKPvPe7IUqvHi0nOEq3VKEBjL4MRgBN5+sYsJLWQxzIEoP4ztiRhPOGhgTu524KyAMp4Jp0gTUV7skBBW4w4gA1ySFMCB/6HTeFz+Z2BnkwEUITkPJv+3W/P7mb3bwVQ7PG3dMMYZmIwG0JHri+VvI426Dy5GLBTTA88WkXevZ84UQ2Am3maX5m4fCtVo/EO+d89vvYN0mD+YjVVAAAAAA==">
     <h1>Administrador de pedidos</h1>
     <p>Sucursal <span class="suc"></span></p>
-    <input class="in" id="pin" type="password" inputmode="numeric" placeholder="PIN" autocomplete="current-password" aria-label="PIN">
+    <input class="in" id="pin" type="password" placeholder="PIN" autocomplete="current-password" aria-label="PIN" style="letter-spacing:2px">
     <button class="btn" id="entrar">Entrar</button>
     <div class="err" id="loginErr"></div>
   </div>
@@ -281,7 +281,7 @@ function render(resaltar=[]){
 }
 function card(p, nuevo){
   const deli = p.entrega==="delivery";
-  const items = (p.items||[]).map(it=>`<div><b>${it.q}×</b> ${esc(it.n)}</div>`
+  const items = (p.items||[]).map(it=>`<div><b>${esc(it.q)}×</b> ${esc(it.n)}</div>`
     + (it.adds||[]).map(a=>`<div class="mod">+ ${esc(a[0])}</div>`).join("")
     + (it.opts||[]).map(o=>`<div class="mod">• ${esc(o)}</div>`).join("")).join("");
   return `<article class="card${nuevo?" nuevo":""}" style="border-left-color:${color(p.estado)}" data-c="${esc(p.codigo)}">
@@ -294,6 +294,7 @@ function card(p, nuevo){
     ${deli?`<div class="c-addr">📍 ${esc(p.direccion)}${p.entre?`<br><span class="c-phone">Entre ${esc(p.entre)}</span>`:""}${p.referencia?`<br><span class="c-phone">${esc(p.referencia)}</span>`:""}<br><span class="c-phone">${esc(p.zona)} · ${$fmt(p.envio)}</span></div>`:""}
     <div class="c-items">${items}</div>
     ${p.aclaraciones?`<div class="c-notes"><b>Aclaraciones:</b> ${esc(p.aclaraciones)}</div>`:""}
+    ${preciosOk(p)?"":`<div class="c-notes" style="background:#ffe3e8;color:#A52A3D"><b>⚠ Revisar precios:</b> no coinciden con el menú actual. Confirmá el total antes de cobrar.</div>`}
     <div class="c-tot"><span>${esc(p.pago)}${p.abonaCon?` · abona con ${$fmt(p.abonaCon)}`:""}</span><b>${$fmt(p.total)}</b></div>
     <div class="c-act">
       <select class="estado" data-act="estado" style="background:${color(p.estado)}" aria-label="Estado">${ESTADOS.map(([e])=>`<option ${e===p.estado?"selected":""}>${e}</option>`).join("")}</select>
@@ -304,6 +305,24 @@ function card(p, nuevo){
       </div>
     </div>
   </article>`;
+}
+
+/* ---------- control de precios contra el menú ---------- */
+// Si alguien manipula la página para mandar un pedido con precios falsos, se marca en rojo.
+const PRECIOS = {};
+MENU.forEach(c=>c.items.forEach(it=>{ PRECIOS[it.n] = { p: it.p, a: Object.fromEntries((ADI[it.a]||[]).map(x=>[x[0],x[1]])) }; }));
+const ZONA_PRECIO = Object.fromEntries(ZONAS);
+function preciosOk(p){
+  let sub = 0;
+  for (const it of (p.items||[])) {
+    const m = PRECIOS[it.n]; if (!m) return false;
+    let u = m.p;
+    for (const a of (it.adds||[])) { if (!(a[0] in m.a)) return false; u += m.a[a[0]]; }
+    if (Number(it.u) !== u) return false;
+    sub += u * Number(it.q);
+  }
+  const env = p.entrega==="delivery" ? (ZONA_PRECIO[p.zona] ?? -1) : 0;
+  return sub === Number(p.subtotal) && Number(p.total) === sub + env;
 }
 
 /* ---------- acciones ---------- */
@@ -349,12 +368,12 @@ function imprimir(p, tipo){
     h += `<div class="xl">#${esc(p.numero||"")} · ${deli?"DELIVERY":"TAKE AWAY"}</div>
       <div class="c">${esc(p.nombre||"")} · ${hora(p.fecha)} · ${esc(p.codigo)}</div><hr>`;
     (p.items||[]).forEach(it=>{
-      h += `<div class="it">${it.q} x ${esc(it.n)}</div>`;
+      h += `<div class="it">${esc(it.q)} x ${esc(it.n)}</div>`;
       (it.adds||[]).forEach(a=>h += `<div class="md">+ ${esc(a[0])}</div>`);
       (it.opts||[]).forEach(o=>h += `<div class="md">* ${esc(o)}</div>`);
     });
     if (p.aclaraciones) h += `<div class="nota">${esc(p.aclaraciones)}</div>`;
-    h += `<hr><div class="c">Total artículos: ${(p.items||[]).reduce((s,i)=>s+i.q,0)}</div>`;
+    h += `<hr><div class="c">Total artículos: ${esc((p.items||[]).reduce((s,i)=>s+Number(i.q||0),0))}</div>`;
   } else {
     h += `<h3>EL BIFARDO</h3><div class="c">Sucursal ${esc(CONFIG.SUCURSAL)}</div><hr>
       <div class="xl">#${esc(p.numero||"")}</div><div class="c">Código ${esc(p.codigo)} · ${new Date(p.fecha).toLocaleString("es-AR",{hour12:false})}</div><hr>
@@ -363,15 +382,15 @@ function imprimir(p, tipo){
     else h += `<div><b>Retira en el local</b></div>`;
     h += `<hr>`;
     (p.items||[]).forEach(it=>{
-      h += `<div class="r"><span>${it.q} x ${esc(it.n)}</span><span>$${it.q*it.u}</span></div>`;
-      (it.adds||[]).forEach(a=>h += `<div class="md">+ ${esc(a[0])} ($${a[1]})</div>`);
+      h += `<div class="r"><span>${esc(it.q)} x ${esc(it.n)}</span><span>$${esc(Number(it.q)*Number(it.u))}</span></div>`;
+      (it.adds||[]).forEach(a=>h += `<div class="md">+ ${esc(a[0])} ($${esc(a[1])})</div>`);
       (it.opts||[]).forEach(o=>h += `<div class="md">* ${esc(o)}</div>`);
     });
     if (p.aclaraciones) h += `<div class="nota">${esc(p.aclaraciones)}</div>`;
-    h += `<hr><div class="r"><span>Subtotal</span><span>$${p.subtotal}</span></div>`;
-    if (deli) h += `<div class="r"><span>Envío</span><span>$${p.envio}</span></div>`;
-    h += `<div class="r" style="font-size:16px;font-weight:800"><span>TOTAL</span><span>$${p.total}</span></div>
-      <div><b>Pago:</b> ${esc(p.pago)}${p.pagado?" (PAGADO)":""}</div>${p.abonaCon?`<div><b>Abona con:</b> $${p.abonaCon}</div>`:""}`;
+    h += `<hr><div class="r"><span>Subtotal</span><span>$${esc(p.subtotal)}</span></div>`;
+    if (deli) h += `<div class="r"><span>Envío</span><span>$${esc(p.envio)}</span></div>`;
+    h += `<div class="r" style="font-size:16px;font-weight:800"><span>TOTAL</span><span>$${esc(p.total)}</span></div>
+      <div><b>Pago:</b> ${esc(p.pago)}${p.pagado?" (PAGADO)":""}</div>${p.abonaCon?`<div><b>Abona con:</b> $${esc(p.abonaCon)}</div>`:""}`;
   }
   h += `</div>`;
   $("#print").innerHTML = h;
