@@ -250,10 +250,11 @@
   </div>
 </div>
 
-<script src="menu.js"></script>
-<script src="api.js"></script>
+<script src="menu.js?v=4"></script>
+<script src="api.js?v=4"></script>
 <script>
-cargarMenu().finally(()=>{
+(typeof cargarMenu==="function" ? cargarMenu() : Promise.resolve()).finally(()=>{
+const escHtml = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 /* ================== LÓGICA ================== */
 const $ = s => document.querySelector(s);
 const fmt = n => "$" + n.toLocaleString("es-AR");
