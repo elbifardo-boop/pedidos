@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Bifardo · Administrador de pedidos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#C8364C; --red-dark:#A52A3D; --bg:#ECEEF1; --card:#fff; --ink:#111; --muted:#6b6f76; --line:#e3e5e9;
+    --s-pend:#9aa0a6; --s-conf:#F08A5D; --s-prep:#3BAA6E; --s-entr:#4A7BD0; --s-ok:#2E8B83; --s-canc:#b9b9b9;
+    color-scheme: light;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Outfit",system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  button,input,select{font:inherit;color:inherit}
+  button{cursor:pointer}
+  :focus-visible{outline:2px solid var(--red);outline-offset:2px}
+  .hidden{display:none!important}
+
+  /* login */
+  #login{min-height:100vh;display:grid;place-items:center;padding:20px}
+  .login-card{background:#fff;border-radius:20px;padding:28px 24px;width:100%;max-width:340px;text-align:center}
+  .login-card img{width:72px;height:72px;border-radius:50%}
+  .login-card h1{font-size:20px;margin:10px 0 2px}
+  .login-card p{color:var(--muted);font-size:14px;margin-bottom:16px}
+  .in{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;font-size:18px;text-align:center;letter-spacing:4px;outline:none}
+  .in:focus{border-color:var(--red)}
+  .btn{border:0;border-radius:12px;padding:12px 16px;font-weight:700;background:var(--red);color:#fff}
+  .btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn.sm{padding:8px 12px;font-size:14px;border-radius:10px}
+  .login-card .btn{width:100%;margin-top:12px;font-size:16px}
+  .err{color:var(--red-dark);font-size:13px;font-weight:600;margin-top:10px;min-height:18px}
+
+  /* top bar */
+  header{background:var(--red);color:#fff;position:sticky;top:0;z-index:10}
+  .hd{max-width:1400px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .hd img{width:38px;height:38px;border-radius:50%;background:#fff}
+  .hd h1{font-size:18px;font-weight:700;margin-right:auto;line-height:1.1}
+  .hd h1 small{display:block;font-size:12px;font-weight:500;opacity:.85}
+  .stat{background:rgba(255,255,255,.16);border-radius:10px;padding:6px 12px;font-size:13px;line-height:1.2;font-variant-numeric:tabular-nums}
+  .stat b{display:block;font-size:17px}
+  .hd .btn{background:#fff;color:var(--red-dark);text-decoration:none}
+  .hd .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+  .live{font-size:12px;display:flex;align-items:center;gap:6px;opacity:.9}
+  .live i{width:8px;height:8px;border-radius:50%;background:#7CFFB2;display:inline-block}
+  .live.off i{background:#FFD36B}
+
+  /* tabs */
+  .bar2{max-width:1400px;margin:0 auto;padding:14px 16px 4px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .tab{border:0;background:#fff;border-radius:99px;padding:8px 14px;font-weight:600;font-size:14px}
+  .tab.on{background:var(--ink);color:#fff}
+  .bar2 .sp{margin-left:auto;display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+  .bar2 label{display:flex;gap:6px;align-items:center;cursor:pointer}
+
+  /* cards */
+  #list{max-width:1400px;margin:0 auto;padding:10px 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px;align-items:start}
+  .card{background:#fff;border-radius:16px;padding:14px;border-left:6px solid var(--s-pend);display:flex;flex-direction:column;gap:10px}
+  .card.nuevo{animation:pulse 1.2s ease-in-out 4}
+  @keyframes pulse{50%{box-shadow:0 0 0 4px rgba(200,54,76,.35)}}
+  @media (prefers-reduced-motion: reduce){.card.nuevo{animation:none;box-shadow:0 0 0 3px rgba(200,54,76,.35)}}
+  .c-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+  .c-num{font-weight:800;font-size:18px}
+  .c-num small{font-weight:600;color:var(--muted);font-size:12px;margin-left:6px;letter-spacing:1px}
+  .c-time{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;text-align:right}
+  .c-name{font-weight:600;font-size:16px}
+  .c-phone{color:var(--muted);font-size:13px}
+  .chip{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;background:#f1f2f4;color:#444;margin-right:4px;text-transform:uppercase;letter-spacing:.5px}
+  .chip.deli{background:#e8effc;color:#2f5fb3}
+  .chip.take{background:#eaf6ef;color:#23794b}
+  .chip.most{background:#fff1f3;color:var(--red-dark)}
+  .c-addr{font-size:14px;line-height:1.35}
+  .c-items{font-size:14px;line-height:1.4;border-top:1px dashed var(--line);padding-top:8px}
+  .c-items .mod{color:var(--muted);font-size:12.5px;padding-left:14px}
+  .c-notes{background:#fff8e6;border-radius:8px;padding:6px 8px;font-size:13px}
+  .c-tot{display:flex;justify-content:space-between;align-items:baseline;font-variant-numeric:tabular-nums}
+  .c-tot b{font-size:18px}
+  .c-tot span{color:var(--muted);font-size:13px}
+  .c-act{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .estado{border:0;border-radius:99px;padding:7px 12px;font-weight:700;font-size:13px;color:#fff;background:var(--s-pend);appearance:none;cursor:pointer}
+  .pago{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 11px;font-weight:600;font-size:13px}
+  .pago.si{background:#eaf6ef;border-color:#3BAA6E;color:#23794b}
+  .print{margin-left:auto;display:flex;gap:6px}
+  .empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 0}
+
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:30;padding:16px}
+  .modal .box{background:#fff;border-radius:18px;width:100%;max-width:460px;max-height:90vh;overflow:auto;padding:20px}
+  .modal h2{font-size:20px;margin-bottom:12px}
+  .row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  .row.big{font-weight:800;font-size:18px;border-bottom:2px solid var(--ink)}
+  .sel{display:flex;gap:8px;margin-bottom:12px}
+  .sel input,.sel select{border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}
+  .modal .acts{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+  pre.res{white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;font-size:12px;background:#f6f7f9;border-radius:10px;padding:10px;margin-top:10px}
+
+  /* ticket de impresión 80 mm */
+  #print{display:none}
+  @media print{
+    @page{size:80mm auto;margin:0}
+    body{background:#fff}
+    body > *:not(#print){display:none!important}
+    #print{display:block;width:72mm;margin:0 auto;padding:2mm 0 6mm;font-family:"Courier New",ui-monospace,monospace;color:#000}
+  }
+  .tk{font-size:12px;line-height:1.3}
+  .tk h3{font-size:20px;text-align:center;margin:0 0 1mm}
+  .tk .c{text-align:center}
+  .tk hr{border:0;border-top:1px dashed #000;margin:2mm 0}
+  .tk .it{font-size:15px;font-weight:700;margin-top:1.5mm}
+  .tk .md{font-size:13px;padding-left:4mm}
+  .tk .r{display:flex;justify-content:space-between}
+  .tk .xl{font-size:22px;font-weight:800;text-align:center;letter-spacing:1px}
+  .tk .nota{border:1px solid #000;padding:1mm 2mm;margin-top:2mm;font-size:13px;font-weight:700}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="login">
+  <div class="login-card">
+    <img id="logo1" alt="El Bifardo" src="data:image/webp;base64,UklGRmYFAABXRUJQVlA4WAoAAAAgAAAAfwAAfwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggeAMAAHAUAJ0BKoAAgAA+bTSXR6QjJSGplDjgoA2JTat8LrmfwQHXcuanhrE9hgP1g9bznZusA9ADyz/aGK9J3sMD+EIW0xsxGD2f4xvGjj1mRBLPRBeOa4XX4opmZxuv+ckchIwBoKwog5O1+0wwRPjdowQ/TqwdKeYusQLOEj5Qf1YhVqSmAioE1eewMTk8azaJmsFD4NUX+WnrK67Zzq5Fv0laJU55IVA6P1I5sAAA/up42W/r1X1cG//1aH/+Wh//kGeOo2n5TrlP+ggKb7mON4XzfTaQN8bBJ5yCgE5vD9c36MvirgauBljsTKrCbqNaoN4Ga/0lmr8uXiOFumYK4WPIDYKf5LPo/OX1+KqN3rzus9abZbBQZDG2eMVyVxmlpgtQAGfYlOdAxUVlQzhuJsugtzEeA+sPOTwPp2hIhiyZxXihNcdMf/0BujKU3jpktLlrP4CZPQrAWn2PjU0rLMFRfz29Ga7/O8t5IZQ7s9b4Xe0OMV+sb7L5OKJiW6lMzOPQ71/DHE3ObgUnVtNoFagypET191bEmBrzuHHON2JJwP9TIz+12e4I5QpDHX8oPaORRXvhEAhq3QagoMGzF2FzV0+cuabj0vc87zbfnDGi2fYjPbXeIvm0SGbBvl10WJ9dssWzmyMuI06RK7G2qjPzJrdykzCmR8qonmwsnm+I1x6kmUqXfN10JFa0DLfGOflxUGpjaqpruTQGUqeZAOD2ufFyMtJ+gQnRMrA7ayQwNFl7+1VB/PP6JNjG8qA7aBiyl45aFA6pOCgwe+EsPbj/6BdHB1TDSiKneJEmrUs7/eSQkfaddiArTGRBBlifGUaFeb6AMFbtZew7D9N6QMkRiN+Yv/fpBBqMlRp/j237iY9Ab/4Os1+JrO8BA14sjpV+LYKZTvMUdzYau0kXpiZmxFs9WuJTpK7/QIx8AAc8rgMMkXVoWxCeT9c5+wXK2ljyyQ2VD9ijDKPvPe7IUqvHi0nOEq3VKEBjL4MRgBN5+sYsJLWQxzIEoP4ztiRhPOGhgTu524KyAMp4Jp0gTUV7skBBW4w4gA1ySFMCB/6HTeFz+Z2BnkwEUITkPJv+3W/P7mb3bwVQ7PG3dMMYZmIwG0JHri+VvI426Dy5GLBTTA88WkXevZ84UQ2Am3maX5m4fCtVo/EO+d89vvYN0mD+YjVVAAAAAA==">
+    <h1>Administrador de pedidos</h1>
+    <p>Sucursal <span class="suc"></span></p>
+    <input class="in" id="pin" type="password" inputmode="numeric" placeholder="PIN" autocomplete="current-password" aria-label="PIN">
+    <button class="btn" id="entrar">Entrar</button>
+    <div class="err" id="loginErr"></div>
+  </div>
+</section>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <header><div class="hd">
+    <img id="logo2" alt="" src="data:image/webp;base64,UklGRmYFAABXRUJQVlA4WAoAAAAgAAAAfwAAfwAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggeAMAAHAUAJ0BKoAAgAA+bTSXR6QjJSGplDjgoA2JTat8LrmfwQHXcuanhrE9hgP1g9bznZusA9ADyz/aGK9J3sMD+EIW0xsxGD2f4xvGjj1mRBLPRBeOa4XX4opmZxuv+ckchIwBoKwog5O1+0wwRPjdowQ/TqwdKeYusQLOEj5Qf1YhVqSmAioE1eewMTk8azaJmsFD4NUX+WnrK67Zzq5Fv0laJU55IVA6P1I5sAAA/up42W/r1X1cG//1aH/+Wh//kGeOo2n5TrlP+ggKb7mON4XzfTaQN8bBJ5yCgE5vD9c36MvirgauBljsTKrCbqNaoN4Ga/0lmr8uXiOFumYK4WPIDYKf5LPo/OX1+KqN3rzus9abZbBQZDG2eMVyVxmlpgtQAGfYlOdAxUVlQzhuJsugtzEeA+sPOTwPp2hIhiyZxXihNcdMf/0BujKU3jpktLlrP4CZPQrAWn2PjU0rLMFRfz29Ga7/O8t5IZQ7s9b4Xe0OMV+sb7L5OKJiW6lMzOPQ71/DHE3ObgUnVtNoFagypET191bEmBrzuHHON2JJwP9TIz+12e4I5QpDHX8oPaORRXvhEAhq3QagoMGzF2FzV0+cuabj0vc87zbfnDGi2fYjPbXeIvm0SGbBvl10WJ9dssWzmyMuI06RK7G2qjPzJrdykzCmR8qonmwsnm+I1x6kmUqXfN10JFa0DLfGOflxUGpjaqpruTQGUqeZAOD2ufFyMtJ+gQnRMrA7ayQwNFl7+1VB/PP6JNjG8qA7aBiyl45aFA6pOCgwe+EsPbj/6BdHB1TDSiKneJEmrUs7/eSQkfaddiArTGRBBlifGUaFeb6AMFbtZew7D9N6QMkRiN+Yv/fpBBqMlRp/j237iY9Ab/4Os1+JrO8BA14sjpV+LYKZTvMUdzYau0kXpiZmxFs9WuJTpK7/QIx8AAc8rgMMkXVoWxCeT9c5+wXK2ljyyQ2VD9ijDKPvPe7IUqvHi0nOEq3VKEBjL4MRgBN5+sYsJLWQxzIEoP4ztiRhPOGhgTu524KyAMp4Jp0gTUV7skBBW4w4gA1ySFMCB/6HTeFz+Z2BnkwEUITkPJv+3W/P7mb3bwVQ7PG3dMMYZmIwG0JHri+VvI426Dy5GLBTTA88WkXevZ84UQ2Am3maX5m4fCtVo/EO+d89vvYN0mD+YjVVAAAAAA==">
+    <h1>Pedidos <span class="suc"></span><small id="hoyTxt"></small></h1>
+    <div class="stat">Pedidos hoy<b id="stCount">0</b></div>
+    <div class="stat">Vendido hoy<b id="stTotal">$0</b></div>
+    <div class="stat">Burgers hoy<b id="stBurg">0</b></div>
+    <a class="btn" id="btnMostrador" href="index.html#mostrador" target="_blank" rel="noopener">+ Pedido mostrador</a>
+    <button class="btn ghost" id="btnResumen">Resumen del turno</button>
+    <div class="live" id="live"><i></i><span>Conectando…</span></div>
+  </div></header>
+
+  <div class="bar2">
+    <button class="tab on" data-f="activos">Activos</button>
+    <button class="tab" data-f="hoy">Todos de hoy</button>
+    <button class="tab" data-f="ayer">Ayer</button>
+    <div class="sp">
+      <label><input type="checkbox" id="autoPrint"> Imprimir comanda al entrar</label>
+      <label><input type="checkbox" id="sonido" checked> Sonido</label>
+    </div>
+  </div>
+
+  <main id="list"></main>
+</div>
+
+<!-- RESUMEN -->
+<div class="modal hidden" id="mRes" role="dialog" aria-label="Resumen del turno">
+  <div class="box">
+    <h2>Resumen del turno</h2>
+    <div class="sel">
+      <input type="date" id="rDia" aria-label="Día">
+      <select id="rTurno" aria-label="Turno"><option value="noche">Noche</option><option value="mediodia">Mediodía</option><option value="todo">Todo el día</option></select>
+    </div>
+    <div id="rBody"></div>
+    <pre class="res" id="rTxt"></pre>
+    <div class="acts">
+      <button class="btn ghost sm" id="rCopy">Copiar resumen</button>
+      <button class="btn sm" id="rClose">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="print"></div>
+
+<script src="menu.js"></script>
+<script src="api.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const ESTADOS = [["Pendiente","--s-pend"],["Confirmado","--s-conf"],["En Preparación","--s-prep"],["En Entrega","--s-entr"],["Entregado","--s-ok"],["Cancelado","--s-canc"]];
+const color = e => `var(${(ESTADOS.find(x=>x[0]===e)||ESTADOS[0])[1]})`;
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const hora = iso => new Date(iso).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit",hour12:false});
+const diaKey = d => { const x = new Date(d); return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0"); };
+// el "día de trabajo" termina a las 5 am: un pedido de la 1 am cuenta para la noche anterior
+const diaTrabajo = iso => { const d = new Date(iso); if (d.getHours() < 5) d.setDate(d.getDate()-1); return diaKey(d); };
+
+document.querySelectorAll(".suc").forEach(e=>e.textContent = CONFIG.SUCURSAL);
+
+let PIN = "";
+let pedidos = [];
+let vistos = new Set();
+let primera = true;
+let filtro = "activos";
+let audio = null;
+
+/* ---------- login ---------- */
+try { PIN = localStorage.getItem("bifa_admin_pin") || ""; } catch(e){}
+$("#pin").value = PIN;
+async function entrar(){
+  PIN = $("#pin").value.trim();
+  $("#loginErr").textContent = "";
+  try { audio = audio || new (window.AudioContext||window.webkitAudioContext)(); } catch(e){}
+  try {
+    const r = await Api.verificar(PIN);
+    if (!r.ok) { $("#loginErr").textContent = r.error || "PIN incorrecto"; return; }
+  } catch(e) { $("#loginErr").textContent = "No se pudo conectar con la base de pedidos."; return; }
+  try { localStorage.setItem("bifa_admin_pin", PIN); } catch(e){}
+  $("#login").classList.add("hidden"); $("#app").classList.remove("hidden");
+  cargar(); setInterval(cargar, 8000);
+}
+$("#entrar").onclick = entrar;
+$("#pin").addEventListener("keydown", e=>{ if (e.key==="Enter") entrar(); });
+
+/* ---------- sonido de pedido nuevo ---------- */
+function beep(){
+  if (!$("#sonido").checked || !audio) return;
+  try {
+    audio.resume();
+    [0, .22, .44].forEach((t,i)=>{
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = i===2 ? 1320 : 880; o.type = "sine";
+      g.gain.setValueAtTime(.0001, audio.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(.4, audio.currentTime+t+.02);
+      g.gain.exponentialRampToValueAtTime(.0001, audio.currentTime+t+.18);
+      o.connect(g).connect(audio.destination); o.start(audio.currentTime+t); o.stop(audio.currentTime+t+.2);
+    });
+  } catch(e){}
+}
+
+/* ---------- carga periódica ---------- */
+async function cargar(){
+  try {
+    const r = await Api.listar(PIN, 60);
+    if (!r.ok) throw new Error(r.error);
+    const nuevos = r.pedidos.filter(p=>!vistos.has(p.codigo));
+    // conservar cambios locales que todavía no confirmó el servidor
+    r.pedidos.forEach(p=>{ const loc = pendientes[p.codigo]; if (loc) Object.assign(p, loc); });
+    pedidos = r.pedidos;
+    nuevos.forEach(p=>vistos.add(p.codigo));
+    if (!primera && nuevos.length) {
+      beep();
+      parpadear(nuevos.length);
+      if ($("#autoPrint").checked) nuevos.forEach((p,i)=>setTimeout(()=>imprimir(p,"cocina"), i*1500));
+    }
+    render(primera ? [] : nuevos.map(p=>p.codigo));
+    primera = false;
+    $("#live").classList.remove("off");
+    $("#live span").textContent = "En vivo · " + hora(new Date().toISOString());
+  } catch(e) {
+    $("#live").classList.add("off");
+    $("#live span").textContent = "Sin conexión, reintentando…";
+  }
+}
+let tituloTimer = null;
+function parpadear(n){
+  clearInterval(tituloTimer); let on = false, k = 0;
+  tituloTimer = setInterval(()=>{ document.title = (on = !on) ? `(${n}) ¡Pedido nuevo!` : "Bifardo · Administrador de pedidos"; if (++k > 20) { clearInterval(tituloTimer); document.title = "Bifardo · Administrador de pedidos"; } }, 700);
+}
+
+/* ---------- vista ---------- */
+function hoyKey(){ return diaTrabajo(new Date().toISOString()); }
+function ayerKey(){ const d = new Date(); if (d.getHours()<5) d.setDate(d.getDate()-1); d.setDate(d.getDate()-1); return diaKey(d); }
+function visibles(){
+  const hoy = hoyKey();
+  if (filtro==="activos") return pedidos.filter(p=>!["Entregado","Cancelado"].includes(p.estado));
+  if (filtro==="hoy") return pedidos.filter(p=>diaTrabajo(p.fecha)===hoy);
+  return pedidos.filter(p=>diaTrabajo(p.fecha)===ayerKey());
+}
+function render(resaltar=[]){
+  const hoy = pedidos.filter(p=>diaTrabajo(p.fecha)===hoyKey() && p.estado!=="Cancelado");
+  $("#stCount").textContent = hoy.length;
+  $("#stTotal").textContent = $fmt(hoy.reduce((s,p)=>s+Number(p.total||0),0));
+  $("#stBurg").textContent = hoy.reduce((s,p)=>s+Number(p.hamburguesas||0),0);
+  $("#hoyTxt").textContent = new Date().toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
+  const L = visibles();
+  $("#list").innerHTML = L.length ? L.map(p=>card(p, resaltar.includes(p.codigo))).join("")
+    : `<div class="empty">${filtro==="activos" ? "No hay pedidos activos. Cuando entre uno, aparece acá con sonido." : "No hay pedidos para mostrar."}</div>`;
+}
+function card(p, nuevo){
+  const deli = p.entrega==="delivery";
+  const items = (p.items||[]).map(it=>`<div><b>${it.q}×</b> ${esc(it.n)}</div>`
+    + (it.adds||[]).map(a=>`<div class="mod">+ ${esc(a[0])}</div>`).join("")
+    + (it.opts||[]).map(o=>`<div class="mod">• ${esc(o)}</div>`).join("")).join("");
+  return `<article class="card${nuevo?" nuevo":""}" style="border-left-color:${color(p.estado)}" data-c="${esc(p.codigo)}">
+    <div class="c-top">
+      <div><div class="c-num">#${esc(p.numero||"")}<small>${esc(p.codigo)}</small></div>
+        <span class="chip ${deli?"deli":"take"}">${deli?"Delivery":"Take away"}</span>${p.canal==="mostrador"?'<span class="chip most">Mostrador</span>':""}</div>
+      <div class="c-time">${hora(p.fecha)}<br>${new Date(p.fecha).toLocaleDateString("es-AR",{day:"2-digit",month:"2-digit"})}</div>
+    </div>
+    <div><div class="c-name">${esc(p.nombre||"-")}</div>${p.whatsapp?`<div class="c-phone">${esc(p.whatsapp)}</div>`:""}</div>
+    ${deli?`<div class="c-addr">📍 ${esc(p.direccion)}${p.entre?`<br><span class="c-phone">Entre ${esc(p.entre)}</span>`:""}${p.referencia?`<br><span class="c-phone">${esc(p.referencia)}</span>`:""}<br><span class="c-phone">${esc(p.zona)} · ${$fmt(p.envio)}</span></div>`:""}
+    <div class="c-items">${items}</div>
+    ${p.aclaraciones?`<div class="c-notes"><b>Aclaraciones:</b> ${esc(p.aclaraciones)}</div>`:""}
+    <div class="c-tot"><span>${esc(p.pago)}${p.abonaCon?` · abona con ${$fmt(p.abonaCon)}`:""}</span><b>${$fmt(p.total)}</b></div>
+    <div class="c-act">
+      <select class="estado" data-act="estado" style="background:${color(p.estado)}" aria-label="Estado">${ESTADOS.map(([e])=>`<option ${e===p.estado?"selected":""}>${e}</option>`).join("")}</select>
+      <button class="pago ${p.pagado?"si":""}" data-act="pagado">${p.pagado?"✓ Pagó":"No pagó"}</button>
+      <div class="print">
+        <button class="btn sm" data-act="cocina" title="Comanda para la cocina, sin precios">🖨 Cocina</button>
+        <button class="btn ghost sm" data-act="ticket" title="Ticket completo con datos y precios">🖨 Completo</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+/* ---------- acciones ---------- */
+const pendientes = {};
+async function cambiar(codigo, campo, valor){
+  const p = pedidos.find(x=>x.codigo===codigo); if (!p) return;
+  p[campo] = valor; pendientes[codigo] = { ...(pendientes[codigo]||{}), [campo]: valor };
+  render();
+  try {
+    const r = await Api.actualizar(PIN, codigo, campo, valor);
+    if (!r.ok) throw new Error(r.error);
+    delete pendientes[codigo][campo];
+    if (!Object.keys(pendientes[codigo]).length) delete pendientes[codigo];
+  } catch(e) {
+    delete pendientes[codigo]; cargar();
+    alertaSuave("No se pudo guardar el cambio. Revisá la conexión.");
+  }
+}
+function alertaSuave(t){ $("#live").classList.add("off"); $("#live span").textContent = t; }
+
+$("#list").addEventListener("change", e=>{
+  if (e.target.dataset.act!=="estado") return;
+  cambiar(e.target.closest(".card").dataset.c, "estado", e.target.value);
+});
+$("#list").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-act]"); if (!b) return;
+  const c = b.closest(".card").dataset.c, p = pedidos.find(x=>x.codigo===c);
+  if (b.dataset.act==="pagado") cambiar(c, "pagado", !p.pagado);
+  if (b.dataset.act==="cocina") imprimir(p, "cocina");
+  if (b.dataset.act==="ticket") imprimir(p, "ticket");
+});
+document.querySelectorAll(".tab").forEach(t=>t.onclick = ()=>{
+  filtro = t.dataset.f; document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on", x===t)); render();
+});
+try { $("#autoPrint").checked = localStorage.getItem("bifa_autoprint")==="1"; } catch(e){}
+$("#autoPrint").onchange = ()=>{ try { localStorage.setItem("bifa_autoprint", $("#autoPrint").checked?"1":"0"); } catch(e){} };
+
+/* ---------- impresión 80 mm ---------- */
+function imprimir(p, tipo){
+  const deli = p.entrega==="delivery";
+  let h = `<div class="tk">`;
+  if (tipo==="cocina") {
+    h += `<div class="xl">#${esc(p.numero||"")} · ${deli?"DELIVERY":"TAKE AWAY"}</div>
+      <div class="c">${esc(p.nombre||"")} · ${hora(p.fecha)} · ${esc(p.codigo)}</div><hr>`;
+    (p.items||[]).forEach(it=>{
+      h += `<div class="it">${it.q} x ${esc(it.n)}</div>`;
+      (it.adds||[]).forEach(a=>h += `<div class="md">+ ${esc(a[0])}</div>`);
+      (it.opts||[]).forEach(o=>h += `<div class="md">* ${esc(o)}</div>`);
+    });
+    if (p.aclaraciones) h += `<div class="nota">${esc(p.aclaraciones)}</div>`;
+    h += `<hr><div class="c">Total artículos: ${(p.items||[]).reduce((s,i)=>s+i.q,0)}</div>`;
+  } else {
+    h += `<h3>EL BIFARDO</h3><div class="c">Sucursal ${esc(CONFIG.SUCURSAL)}</div><hr>
+      <div class="xl">#${esc(p.numero||"")}</div><div class="c">Código ${esc(p.codigo)} · ${new Date(p.fecha).toLocaleString("es-AR",{hour12:false})}</div><hr>
+      <div><b>Cliente:</b> ${esc(p.nombre||"-")}</div>${p.whatsapp?`<div><b>WhatsApp:</b> ${esc(p.whatsapp)}</div>`:""}`;
+    if (deli) h += `<div><b>Delivery a:</b> ${esc(p.direccion)}</div>${p.entre?`<div><b>Entre:</b> ${esc(p.entre)}</div>`:""}${p.referencia?`<div><b>Ref:</b> ${esc(p.referencia)}</div>`:""}<div><b>Zona:</b> ${esc(p.zona)}</div>`;
+    else h += `<div><b>Retira en el local</b></div>`;
+    h += `<hr>`;
+    (p.items||[]).forEach(it=>{
+      h += `<div class="r"><span>${it.q} x ${esc(it.n)}</span><span>$${it.q*it.u}</span></div>`;
+      (it.adds||[]).forEach(a=>h += `<div class="md">+ ${esc(a[0])} ($${a[1]})</div>`);
+      (it.opts||[]).forEach(o=>h += `<div class="md">* ${esc(o)}</div>`);
+    });
+    if (p.aclaraciones) h += `<div class="nota">${esc(p.aclaraciones)}</div>`;
+    h += `<hr><div class="r"><span>Subtotal</span><span>$${p.subtotal}</span></div>`;
+    if (deli) h += `<div class="r"><span>Envío</span><span>$${p.envio}</span></div>`;
+    h += `<div class="r" style="font-size:16px;font-weight:800"><span>TOTAL</span><span>$${p.total}</span></div>
+      <div><b>Pago:</b> ${esc(p.pago)}${p.pagado?" (PAGADO)":""}</div>${p.abonaCon?`<div><b>Abona con:</b> $${p.abonaCon}</div>`:""}`;
+  }
+  h += `</div>`;
+  $("#print").innerHTML = h;
+  window.print();
+}
+
+/* ---------- resumen del turno ---------- */
+function resumen(){
+  const dia = $("#rDia").value, turno = $("#rTurno").value;
+  const L = pedidos.filter(p=>{
+    if (p.estado==="Cancelado" || diaTrabajo(p.fecha)!==dia) return false;
+    const h = new Date(p.fecha).getHours();
+    const noche = h >= 17 || h < 5;
+    return turno==="todo" || (turno==="noche" ? noche : !noche);
+  });
+  const sum = f => L.reduce((s,p)=>s+Number(f(p)||0),0);
+  const porPago = {}; L.forEach(p=>{ porPago[p.pago] = (porPago[p.pago]||0) + Number(p.total||0); });
+  const delis = L.filter(p=>p.entrega==="delivery");
+  const web = L.filter(p=>p.canal!=="mostrador").length;
+  const total = sum(p=>p.total), env = sum(p=>p.envio), burg = sum(p=>p.hamburguesas);
+  $("#rBody").innerHTML = `
+    <div class="row"><span>Pedidos (web / mostrador)</span><b>${L.length} (${web} / ${L.length-web})</b></div>
+    <div class="row"><span>Delivery / Take away</span><b>${delis.length} / ${L.length-delis.length}</b></div>
+    <div class="row"><span>Hamburguesas</span><b>${burg}</b></div>
+    ${Object.entries(porPago).map(([k,v])=>`<div class="row"><span>${esc(k)}</span><b>${$fmt(v)}</b></div>`).join("")}
+    <div class="row"><span>Envíos cobrados</span><b>${$fmt(env)}</b></div>
+    <div class="row"><span>Pendientes de pago</span><b>${L.filter(p=>!p.pagado).length}</b></div>
+    <div class="row big"><span>Total</span><span>${$fmt(total)}</span></div>`;
+  const d = new Date(dia+"T12:00:00");
+  $("#rTxt").textContent =
+`FECHA: ${d.getDate()}.${d.getMonth()+1}
+TURNO: ${turno==="mediodia"?"mediodía":turno==="noche"?"noche":"día completo"}
+PEDIDOS WEB/MOSTRADOR (sistema propio): ${L.length}
+Burger totales: ${burg}
+Ingreso total: ${total.toLocaleString("es-AR")}
+${Object.entries(porPago).map(([k,v])=>`${k}: ${v.toLocaleString("es-AR")}`).join("\n")}
+Envíos: ${env.toLocaleString("es-AR")}`;
+}
+$("#btnResumen").onclick = ()=>{
+  $("#rDia").value = hoyKey();
+  $("#rTurno").value = new Date().getHours() >= 17 || new Date().getHours() < 5 ? "noche" : "mediodia";
+  resumen(); $("#mRes").classList.remove("hidden");
+};
+$("#rDia").onchange = resumen; $("#rTurno").onchange = resumen;
+$("#rClose").onclick = ()=>$("#mRes").classList.add("hidden");
+$("#mRes").addEventListener("click", e=>{ if (e.target.id==="mRes") $("#mRes").classList.add("hidden"); });
+$("#rCopy").onclick = async ()=>{
+  try { await navigator.clipboard.writeText($("#rTxt").textContent); $("#rCopy").textContent="¡Copiado!"; }
+  catch(e){ $("#rCopy").textContent="Seleccioná el texto y copialo"; }
+  setTimeout(()=>$("#rCopy").textContent="Copiar resumen",2000);
+};
+
+if (Api.usaLocal()) { $("#loginErr").textContent = "Modo prueba: los pedidos se guardan solo en este navegador. Entrá con cualquier PIN."; }
+</script>
+</body>
+</html>
